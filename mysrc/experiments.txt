@@ -1,0 +1,436 @@
+3.6
+做一下噪声设置的实验 高斯噪声 noise=0.1
+先测试一下iid（homo）的情况，即NIID-Bench中的Noise-based feature imbalance
+    1.fedavg
+    2.entropy_federation
+        a=5;    b=10
+        a=0.5;  b=1
+        a=0.1;  b=0.2
+        a=5;    b=0.2
+    3.cos
+        a=0.8
+        a=2
+    4.l2
+    5.pca_federation xxxxxxxxxx
+        a=0.1
+        a=0.5
+        a=1
+        a=2
+        a=5
+        a=10
+
+然后在同样噪声条件下放到label5replaced上测试一下
+
+3.8
+TODO
+1.PCA方法作废了，修改一下方法，减少CPU和内存占用
+2.IFCA方法在相同niid下多测试几次作为基准
+3.使用基于余弦相似度的IFCA做基准
+4.要设置，不同的噪声（有的有噪声有的没有噪声），体现出模型质量的不同
+5.IFCA测试分簇数量依次增加时的模型效果变化
+
+DONE
+nc=2 label5  ifca * 3
+nc=2 label2 entropy_ifca
+nc=5 label5 ifca entropy_ifca
+nc=2 label2 cos_ifca
+
+label2 ifca entropy_ifca nc=2~7
+
+不平衡noise
+homo fedavg entropy
+
+3.13
+attack bad user = 3
+    homo: fedavg entropy pca cps
+    label2
+    label5
+    professional1
+
+
+BadUser:在计算权重前就设定好坏节点
+
+3.15
+attack+homo+label5 fedavg entp cos pca
+noattack+pro1 fedavg entp cos pca
+
+把恶意节点数量，生成随机模型范围参数化
+
+用mnist测
+增大随机模型不确定度 r=0.1
+
+现在对待恶意节点时，是使用训练前的模型（全局模型）和随机模型计算模型更新
+改成用上次上传的模型和随机生成的新模型计算更新试试
+- 好像没太有道理
+
+np.linalg.eig
+有问题
+secondmoment出现复数
+
+3.16
+mnist
+    homo
+    attack
+        r=0.1;n=2
+    pro2
+
+
+3.20
+mnist dir
+mnist dir+attack
+mnist update_attack principal 检测一下能不能检测出来攻击
+pro1 改错了
+label-replaced
+
+TODO
+留一份PCA过程中的权重变化的数据 DONE
+随机梯度测试一下别的方法 感觉没有必要测试，cos肯定是好的 DONE
+修改一下pro1 然后重新测试
+
+TODO
+只对一个标签做替换试试（1变9，9不变）
+
+全连接计时 11:27 ~ 12:37
+可以只训练50round
+
+
+全连接网络需要改的地方
+- 客户端类train方法
+- 全局的eval_train方法
+- main方法中增加相应的if语句
+- 脚本中设置网络
+- rounds=50
+3.22
+FC
+    pro1
+    label-replaced
+    dir
+    homo
+    dir_attack
+
+    label-replaced
+    dir+attack beta=0.1
+    dit beta=0.1
+    pro1+attack
+
+
+标签攻击，修改标签的地方是不是不太对，应该保证的训练的时候数据被修改了
+- 如果下降不明显的话，重新生成dataloader
+
+重新跑一下全部的similarity
+
+3.24
+update attack local_bs=20
+dir beta=0.1 local_ep=20
+
+
+3.27
+ 在dir=0.1+attack设置下多测几个similarity和entropy
+ local epoch=32
+
+TODO
+homo+local_epoch=32+label-flipped=10~40 DONE
+
+attack+dir=0.1+local_epoch=32
+update+dir=0.1+local_epoch=32
+update+dir=0.1+local_epoch=32+range=0.1
+label-flipped+epoch=32
+
+3.29
+epoch=50
+    professional1
+    pro1+update attack
+    dir=0.01+badrange=1
+    dir=0.1+label-flipped=40
+    dir=0.1_badrange=0.1
+
+TODO
+重新跑一下之前的设置
+无攻击的基于差异性的聚合
+
+3.30
+    pro1+update attack:pca√
+    dir=0.05+badrange=0.5
+    update=0.1+dir=0.1
+    div-pca:
+        pro1
+        dir=0.1
+    dir=0.1
+    cifar10:lf+dir=0.1
+
+TODO
+测试一下dir分布的程度和攻击的随机程度各自的影响
+
+3.31
+    cifar10:dir=0.1+lf=20~30
+    dir+update attack
+        (0.05 0.1 0.5) (0.01 0.1 0.5)
+
+TODO
+pca-div
+    dir
+    label
+    pro
+label2+update attack=0.5
+
+4.4
+pca-div
+4.5
+triple label-flipped 10~40
+    todo:调一下alpha参数
+cnn-lf:
+    dir-beta=0.05 0.5
+    alpha=2
+4.6
+之前的error
+再调一下bound（update attack+dir）0.1~10
+pro2
+TODO:1.看一下dir-beta=0.01的问题
+
+4.11
+对于调整bound的设置跑一下fedavg，看看是不是由于这种设置利于平均权重
+    update attack=0.1 label2 error
+对于最好的boudnd=5，重新运行一下之前的update attack设置，看看有没有改善
+    update attack=0.1 dir=0.05 0.1 0.5
+三倍标签翻转+homo
+todo
+label1+无攻击/update attack
+三倍标签翻转+cifar10
+仔细看看entropy里面bound的实验结果，模型参数范围之类的
+    对bound=5做一下update-attack=0.5的情况
+
+cifar10 / fashion-mnist
+    dir+lf
+        调整pca中的alpha
+    triple-lf 翻转为相同标签
+
+
+4,18
+dir=0.5
+    cifar10+lf+dir
+    fmnist+lf+dir
+
+dir=0.1 0.05
+
+4.19
+fmnist
+    no attack 对照组
+        dir=0.05 0.1 √
+    dir=0.2 + lf=10 20 30 40 50
+        fedavg pca cos √
+    backdoor num=20 frac=0.5 dir=0.1 √
+
+4.23
+fmnist
+    backdoor num=20 frac=0.5 dir=0.1 √
+    contrast beta=0.2 0.3 √
+    noise=0.1 beta=0.05 0.1 √
+    lf beta=0.2 to be recorded √
+cifar100
+    contrast beta=0.1 √
+    lf=40 beta=0.1 x
+
+4.24
+cifar100
+    contrast beta=0.1 mypca similarity √
+    lf=40 beta=0.1 √
+fmnist
+    backdoor num=40 frac=0.5 dir=0.1 √
+
+4.25
+fmnist
+    lf=40 beta=0.1 simplePCA √
+cifar100
+    lf=40 beta=0.1 √
+
+4.26
+fmnist
+    simplePCA beta=0.05 0.1 lf=10 20 30 40 50 √
+    triple-lf dir=0.1 lf=10~50 √
+    pca lf dir=0.1 lf=50 √
+    lf entropy dir=0.05 √
+    dir=0.05缺的数据
+cifar10
+    triple-lf √
+4.27
+backdoor
+    frac=1 num=10 20 30
+    frac=0.8 num=20 30 40 50
+noise=0.1 beta=0.2 0.3 0.4 0.5
+4.28
+fmnist
+    backdoor frac=1 num=40 50
+fmnist
+    simplePCA beta =0.05 0.1 lf=10 20 30 40 50
+
+5.4
+fmnist
+    cos beta=0.05 lf=10 50 √
+    simplePCA beta=0.1 lf=20 √
+    simplePCA backdoor lf=10 20 30 40 50 √
+    simplePCA noise beta=0.05 0.1 0.2 0.3 0.4 √
+cifar10
+    backdoor=10 20 30 40 50 √
+    noise beta=0.05 0.1 0.2 0.3 0.4
+
+5.8
+fmnist
+    noise simplePCA 多次运行 √
+    fedavg 0.2~0.4 to be recorded √
+    noise entropy pca cos 0.2~0.5 fedavg 0.5 多次运行 √
+    noise principal 只运行了一遍 √
+cifar10
+    contrast
+    lf beta=0.1 lf=10 √
+    simple lf beta=0.1 √
+    noise fedavg(输出到contrast了)
+cifar100
+    triple-lf
+
+5.10
+fmnist
+    l2 lf dir=0.05 √
+    l2 contrast √
+cifar100
+    lf √
+todo backdoor noise cifar100 l2
+
+5.17
+test fedavg noise cifar10
+
+5.18
+l2 lf fmnist a=0.05 0.1 0.5 √ a=0.1
+cifar100
+    backdoor(fedavg pca cos simple l2)
+
+5.24
+cifar100
+    noise
+
+5.26
+fmnist
+    backdoor dir=0.05
+5.27
+fmnist
+    5lf dir=0.05
+5.29
+fmnist
+    noise=0.1 0.2 0.3 dir=0.05
+5.30
+fmnist
+    dir=0.1
+
+6.1
+fmnist
+    dir=0.05 1lf
+cifar10
+    dir=0.05 backdoor 前四种方法
+6.2
+    fmnist new-pca a=5
+6.3
+cifar10
+    dir=0.05 backdoor 后两种 1
+    noise
+fmnist
+    complex lf=1 backdoor 111
+    6.5 noise
+6.6
+fmnist
+    complex lf=1 backdoor 111
+6.6
+cifar10
+    complex backdoor
+cifar10+fmnist
+    complex noise
+cifar100
+    pca backdoor lf
+6.8
+cifar100 cloud
+    backdoor (pca除外)
+    noise (pca除外)
+    lf=1 simple l2
+cifar100 cloud
+    lf=1 pca
+    backdoor pca
+    noise pca
+cifar10
+
+
+TODO
+fmnist dir=0.05
+    lf=1 111 (but complex slow)
+    noise
+        l2 n=0.4 111 slow
+        complex 111 slow
+cifar10 dir=0.05
+    lf=1
+        complex 111 slow
+        simple 111 slow
+cifar100 dir=0.05 111
+server: 111
+    lf=1 pca 111
+    backdoor pca 111
+    noise pca 111
+
+TODO
+lf=5 fmnist 111 cifar10 111(slow) cifar100 111
+fmnist dir=0.05 (不一定要做)
+    lf=1 complex
+cifar100 111
+    complex
+
+TODO
+cifar100 lf=50
+
+
+6.17
+new noise cifar10 fmnist
+TODO cifar100
+
+no attack
+切换一下买方卖方看看好不好用
+打印权重，确保确实给予坏节点低权重
+
+--------------------------------------------------
+l2.alpha=0.1
+
+6.22
+TODO
+CIFAR10:
+no-attack
+    5种基线 111
+    complex sigma=0~1 (cifar100)  cloud 111
+    cifar10 fmnist server  奇数 ing server-6 0 111
+恶意节点的权重 ing 改成了80rounds server ing
+    lf server-0 1 2 111
+整理没昨晚的new-noise，可能需要加大噪声
+    试试 noise2=1 fmnist ing cloud 111
+fmnist noise2=0.5 111
+    rerun complex l2 server-4 111
+backdoor
+    fmnist cifar10 entp+pca+cos=50
+
+
+6.26
+rerun
+    noattack cifar10 gamma=0.9 0.2 -server6 no
+    lf=5 fmnsit l2||gamma=1||0.5 30% -server7 111
+    noise fmnsit l2 30% -server7 111
+    noise cifar10 l2||gamma=1||0.5 20% -server4
+    noise cifar100 fedavg||gamma=1 30% -cloud no
+
+    noattack cifar100 gamma=1
+6.27
+    noise cifar10 l2||gamma=1||0.5 20% -server4 111
+    noattack cifar10 gamma=1 0.9 0.7 0.2 -server6
+    noattack cifar100 gamma=1 0.9 0.8 0.7 0.6 -cloud 111
+    noattack cifar100 fedavg -cloud 111
+
+
+    fmnist
+    noattack gamma=1 0.9 0.7 0.2 -cloud
+    noattack cifar100 gamma=0.4 0.2 -cloud
+    bad cifar100 with attack
+	lf 20%: gamma=0.5 fedavg -cloud
+	lf 40%: gamma=1 fedavg -cloud
+	noise 30%: gamma=1 feavg -cloud

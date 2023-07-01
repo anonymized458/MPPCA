@@ -1,0 +1,4 @@
+Train Loss: nan, Test_loss: nan
+Train Acc: 9.5402250289917, Test Acc: 9.0
+Best Clients AVG Acc: 80.18400020599366
+Global Model Test Acc: 10.000, Global Model Best Test Acc: 32.810
