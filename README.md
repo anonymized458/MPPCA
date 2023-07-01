@@ -1,4 +1,4 @@
-# Efficient Distribution Similarity Identification in Clustered Federated Learning via Principal Angles Between Client Data Subspaces (PACFL)
+# Neural Networks as Data: Identifying Malicious and Novel Clients in Heterogeneous Federated Learning
 
 The official code of
 paper ''[Neural Networks as Data: Identifying Malicious and Novel Clients in Heterogeneous Federated Learning]()''.
